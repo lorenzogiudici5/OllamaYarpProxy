@@ -21,7 +21,7 @@ public class OpenWebUIModelsResponseHandler : BaseModelsResponseHandler
         // Read and decompress content if needed
         var contentBytes = await response!.Content.ReadAsByteArrayAsync();
         var contentEncoding = response.Content.Headers.ContentEncoding.FirstOrDefault();
-        
+
         string content;
         if (contentEncoding?.Equals("zstd", StringComparison.OrdinalIgnoreCase) == true)
         {
@@ -29,6 +29,15 @@ public class OpenWebUIModelsResponseHandler : BaseModelsResponseHandler
             using var decompressor = new Decompressor();
             var decompressedData = decompressor.Unwrap(contentBytes);
             content = Encoding.UTF8.GetString(decompressedData);
+        }
+        else if (contentEncoding?.Equals("gzip", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            _logger.LogDebug("[RESPONSE TRANSFORM] Decompressing gzip content ({ContentBytes} bytes)", contentBytes.Length);
+            using var ms = new MemoryStream(contentBytes);
+            using var gzipStream = new System.IO.Compression.GZipStream(ms, System.IO.Compression.CompressionMode.Decompress);
+            using var decompressedMs = new MemoryStream();
+            await gzipStream.CopyToAsync(decompressedMs);
+            content = Encoding.UTF8.GetString(decompressedMs.ToArray());
         }
         else
         {

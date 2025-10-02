@@ -38,7 +38,7 @@ public class RequestTransformer : IRequestTransformer
         _logger.LogDebug("[REQUEST TRANSFORM] Processing {Method} {OriginalPath}", method, originalPath);
 
         // Handle chat completions requests with complex logic
-        if (context.Request.Path == "/v1/chat/completions")
+        if (context.Request.Path == "/api/v1/chat/completions" || context.Request.Path == "/v1/chat/completions")
         {
             return await HandleChatCompletionsRequest(transformContext);
         }

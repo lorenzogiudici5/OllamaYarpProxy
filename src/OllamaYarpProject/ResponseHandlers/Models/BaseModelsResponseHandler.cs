@@ -20,7 +20,7 @@ public abstract class BaseModelsResponseHandler : IModelsResponseHandler
     {
         try
         {
-            _logger.LogInformation("[RESPONSE TRANSFORM] Transforming /models response from {ProviderName} backend to Ollama format", GetProviderName());
+            _logger.LogInformation("[RESPONSE TRANSFORM] Transforming Models response from {ProviderName} backend to Ollama format", GetProviderName());
 
             // Get backend-specific models
             var backendModels = await GetBackendModelsAsync(transformContext);
