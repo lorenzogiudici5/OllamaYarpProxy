@@ -39,6 +39,15 @@ public class OpenWebUIModelsResponseHandler : BaseModelsResponseHandler
             await gzipStream.CopyToAsync(decompressedMs);
             content = Encoding.UTF8.GetString(decompressedMs.ToArray());
         }
+        else if (contentEncoding?.Equals("br", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            _logger.LogDebug("[RESPONSE TRANSFORM] Decompressing brotli content ({ContentBytes} bytes)", contentBytes.Length);
+            using var ms = new MemoryStream(contentBytes);
+            using var brotliStream = new System.IO.Compression.BrotliStream(ms, System.IO.Compression.CompressionMode.Decompress);
+            using var decompressedMs = new MemoryStream();
+            await brotliStream.CopyToAsync(decompressedMs);
+            content = Encoding.UTF8.GetString(decompressedMs.ToArray());
+        }
         else
         {
             content = Encoding.UTF8.GetString(contentBytes);
